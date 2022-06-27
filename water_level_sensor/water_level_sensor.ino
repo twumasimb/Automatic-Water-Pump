@@ -90,8 +90,17 @@ void refill(float min_level);
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Setting up the LCD
 
 void setup() {
+  // Setting baud for serial communication
   Serial.begin(115200);
 
+  // Pin declarations
+  pinMode(UTS_TRIGGER, OUTPUT);
+  pinMode(UTS_ECHO, INPUT);
+  pinMode(RED_LED, OUTPUT);
+  pinMode(GRN_LED, OUTPUT);
+  pinMode(RELAY, OUTPUT);
+
+  // Setting up the LCD
   Wire.begin(LCD_SDA, LCD_SCL);
   lcd.begin();
   lcd.backlight();
@@ -99,8 +108,13 @@ void setup() {
   lcd.print("Hello Welcome");
   delay(1500);
 
-  initWiFi();
-  timeClient.begin();
+  // Setting the relay to off position before the loop
+  digitalWrite(RELAY, LOW);
+  Serial.println("Relay is off");
+  delay(2000);
+
+  initWiFi();                                      // Setup to connect wiFi
+  timeClient.begin();                              // Create timestamp
 
   // Assign the api key (required)
   config.api_key = API_KEY;
@@ -121,7 +135,7 @@ void setup() {
 
   // Assign the callback function for the long running token generation task */
   config.token_status_callback = tokenStatusCallback; //see addons/TokenHelper.h
-  
+
   // Initialize the library with the Firebase authen and config
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
@@ -131,7 +145,7 @@ void setup() {
 }
 
 void loop() {
-  if (readLevel() < minimum_level){
+  if (readLevel() < minimum_level) {
     refill(readLevel());
   }
   forwardData(readLevel()); //posting to the database
@@ -156,8 +170,7 @@ float readLevel()
   return water_level;
 }
 
-void forwardData(float data){
-  
+void forwardData(float data) {
   // Send new readings to database
   if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > timerDelay || sendDataPrevMillis == 0)) {
     sendDataPrevMillis = millis();
@@ -174,10 +187,10 @@ void forwardData(float data){
   }
 }
 
-void refill(float min_level){
+void refill(float min_level) {
   lcd.clear();
   lcd.print("Water Refilling");
-  while(min_level != MAX_DISTANCE){
+  while (min_level != MAX_DISTANCE) {
     digitalWrite(RELAY, HIGH);
   }
 }
