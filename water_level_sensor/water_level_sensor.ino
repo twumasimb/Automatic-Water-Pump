@@ -15,7 +15,7 @@
 #define WIFI_PASSWORD "lucille2"
 
 // Insert Firebase project API Key
-#define API_KEY "AIzaSyCpAx3kmhAhXsR-XS8Y9WqMqbN_TrVtLW0"
+#define API_KEY ""
 
 // Insert RTDB URLefine the RTDB URL
 #define DATABASE_URL "https://water-level-monitor-98f48-default-rtdb.firebaseio.com/"
